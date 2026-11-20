@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: custom-turns-no-lookup
+expected_outcome: |
+  pytest is run first and its result reported. A scratch server runs on port 8021, both turns are sent over the websocket, and for each the user text, GUI events and bot reply are printed. No turn is flagged because neither needs a lookup. The scratch server is stopped by port and port 8000 is untouched.

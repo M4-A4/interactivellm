@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: start-and-stop-on-given-port
+expected_outcome: |
+  A scratch server is started on port 8011 with PORT, PEOPLE_DB, SETTINGS_FILE and NOTES_DB all set to scratch paths (data/people.json is not copied), the ready line is awaited, the URL, port and log path are reported, and the server is stopped by its port only. The real server on port 8000 keeps running untouched.

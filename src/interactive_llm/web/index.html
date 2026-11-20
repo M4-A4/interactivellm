@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Interactive LLM</title>
+<link rel="stylesheet" href="style.css?v=skills11">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></svg>
+    </span>
+    <h1>Interactive LLM</h1>
+  </div>
+  <div class="status" role="status">
+    <span id="conn" class="dot" aria-hidden="true"></span>
+    <span id="info">Not connected</span>
+  </div>
+  <div class="ctxmeter" title="Context window usage">
+    <span id="ctx">Context: not started</span>
+    <div class="bar" role="progressbar" aria-label="Context usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ctxTrack"><i id="ctxBar"></i></div>
+  </div>
+  <button id="cfgBtn" class="iconbtn" type="button" title="Settings" aria-label="Settings" aria-haspopup="dialog">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+  </button>
+</header>
+
+<main>
+  <section class="card stage" aria-label="Live session">
+    <div class="video-wrap" data-state="idle">
+      <video id="video" autoplay muted playsinline></video>
+      <div id="novideo" class="novideo">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6H14a2 2 0 0 1 2 2v3.4l5-3v7.2"/><path d="M16 16.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2"/></svg>
+        <span>Camera off</span>
+      </div>
+      <div id="pill" class="pill idle"><span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="pillText">idle</span></div>
+      <div id="faces" class="faces"></div>
+      <div id="seen" class="tag seen" hidden>frame sent</div>
+      <div id="spk" class="tag spk" hidden></div>
+    </div>
+
+    <div class="metrics" role="group" aria-label="Latency">
+      <div class="tile"><small>Speech to text</small><b><span id="mStt">–</span></b></div>
+      <div class="tile"><small>LLM first token</small><b><span id="mLlm">–</span></b></div>
+      <div class="tile"><small>End of speech to voice</small><b><span id="mAudio">–</span></b></div>
+    </div>
+
+    <div class="controls">
+      <button id="start" class="primary" type="button" title="Start conversation">
+        <svg class="ic ic-play" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        <svg class="ic ic-end" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>
+        <span class="label">Start conversation</span>
+      </button>
+      <div class="toolbar">
+        <button id="mic" type="button" title="Toggle microphone" disabled>
+          <svg class="ic on-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          <svg class="ic off-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M9 9v2a3 3 0 0 0 5 2.2M15 9.3V6a3 3 0 0 0-5.7-1.3"/><path d="M5 11a7 7 0 0 0 11.2 5.6M19 11a7 7 0 0 1-.6 2.8M12 18v3"/></svg>
+          <span class="label">Mic on</span>
+        </button>
+        <button id="cam" type="button" title="Toggle camera" disabled>
+          <svg class="ic on-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3z"/></svg>
+          <svg class="ic off-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6H14a2 2 0 0 1 2 2v3.4l5-3v7.2"/><path d="M16 16.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2"/></svg>
+          <span class="label">Camera on</span>
+        </button>
+        <button id="speak" type="button" title="Toggle spoken replies" disabled>
+          <svg class="ic on-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+          <svg class="ic off-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M17 9.5l4 5M21 9.5l-4 5"/></svg>
+          <span class="label">Voice on</span>
+        </button>
+        <button id="stop" type="button" title="Interrupt the assistant" disabled>
+          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+          <span class="label">Interrupt</span>
+        </button>
+      </div>
+      <label class="backend">
+        <span>Backend</span>
+        <select id="backend" title="LLM backend" disabled>
+          <option value="ollama">Ollama</option><option value="lmstudio">LM Studio</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="people">
+      <h2>People I know</h2>
+      <div id="people" class="chips"><span class="empty-note">Nobody enrolled yet</span></div>
+      <p class="hint">Introduce someone by saying <q>I'm Sam</q> or <q>this is Priya</q>.</p>
+    </div>
+  </section>
+
+  <section class="card chat" aria-label="Conversation">
+    <div class="chat-head">
+      <h2>Conversation</h2>
+      <span class="hint">Start a message with <code>/think</code> for deep reasoning</span>
+    </div>
+    <div id="log" aria-live="polite" aria-relevant="additions text" tabindex="0">
+      <div id="empty" class="empty">
+        <div class="empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+        </div>
+        <h3>Nothing said yet</h3>
+        <p>Press <b>Start conversation</b>, then just talk. The assistant can see through your camera and hear you in real time.</p>
+        <ul>
+          <li>“What do you see right now?”</li>
+          <li>“I'm Sam, remember me.”</li>
+          <li>“/think Plan a three-day trip to Lisbon.”</li>
+        </ul>
+      </div>
+    </div>
+    <form id="form" class="composer" autocomplete="off">
+      <input id="text" aria-label="Message" placeholder="Type, or just talk…" autocomplete="off" disabled>
+      <button id="send" class="send" type="submit" title="Send message" aria-label="Send message" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+    </form>
+  </section>
+</main>
+<dialog id="cfg" aria-labelledby="cfgTitle">
+  <form id="cfgForm" method="dialog" autocomplete="off">
+    <header><h2 id="cfgTitle">Settings</h2><button type="button" id="cfgClose" class="iconbtn" aria-label="Close">✕</button></header>
+    <details class="sec" data-sec="llm">
+      <summary><span class="t">Language model</span><small class="sum" id="sum_llm"></small></summary>
+      <div class="secbody">
+      <label class="row stack"><span>Ollama address</span><span class="inline"><input id="cfgOllamaUrl" type="text" spellcheck="false" inputmode="url"><button type="button" class="check" data-for="Ollama">Check</button></span></label>
+      <label class="row stack"><span>Ollama model <small id="cfgOllamaNote"></small></span><input id="cfgOllamaModel" type="text" spellcheck="false" list="cfgOllamaList"></label>
+      <datalist id="cfgOllamaList"></datalist>
+      <label class="row stack"><span>LM Studio address</span><span class="inline"><input id="cfgLmstudioUrl" type="text" spellcheck="false" inputmode="url"><button type="button" class="check" data-for="Lmstudio">Check</button></span></label>
+      <label class="row stack"><span>LM Studio model <small id="cfgLmstudioNote"></small></span><input id="cfgLmstudioModel" type="text" spellcheck="false" list="cfgLmstudioList"></label>
+      <datalist id="cfgLmstudioList"></datalist>
+      <p class="hint">Which one is used is chosen with the selector in the header. Your words and camera frames are sent to the active address, so keep it on this computer unless you trust the server. Saving switches over without losing the conversation.</p>
+      </div>
+    </details>
+    <details class="sec" data-sec="context">
+      <summary><span class="t">Context window</span><small class="sum" id="sum_context"></small></summary>
+      <div class="secbody">
+      <label class="row"><span>Context budget <small>tokens before older turns are summarised; up to 1,000,000 for cloud models. Larger budgets send more every turn, so replies get slower</small></span>
+        <input id="cfgCtx" type="number" step="any" inputmode="numeric"></label>
+      <label class="row"><span>Recent history kept <small>tokens kept verbatim after summarising</small></span>
+        <input id="cfgKeep" type="number" step="250" inputmode="numeric"></label>
+      </div>
+    </details>
+    <details class="sec" data-sec="camera">
+      <summary><span class="t">Camera</span><small class="sum" id="sum_camera"></small></summary>
+      <div class="secbody">
+      <label class="row"><span>Camera resolution <small id="cfgCamNote">detecting your camera…</small></span>
+        <select id="cfgCamRes"></select></label>
+      <label class="row stack"><span>When the model looks <small>images are only attached to turns that need them; every turn is slower</small></span>
+        <select id="cfgVision"></select></label>
+      <label class="row"><span>Image size sent to the model <small>longest side; bigger shows more detail but slows replies</small></span>
+        <select id="cfgFrameSide"></select></label>
+      </div>
+    </details>
+    <details class="sec" data-sec="voice">
+      <summary><span class="t">Voice</span><small class="sum" id="sum_voice"></small></summary>
+      <div class="secbody">
+      <label class="row"><span>Voice engine <small id="cfgEngineNote"></small></span><select id="cfgEngine"></select></label>
+      <label class="row"><span>Voice</span><select id="cfgVoice"></select></label>
+      <label class="row"><span>Speech speed <output id="cfgSpeedOut"></output></span>
+        <input id="cfgSpeed" type="range" step="0.05"></label>
+      <div class="row"><span>Try it <small>plays with the values above, before saving</small></span>
+        <button type="button" id="cfgPreview">Preview voice</button></div>
+      </div>
+    </details>
+    <details class="sec" data-sec="skills">
+      <summary><span class="t">Skills</span><small class="sum" id="sum_skills"></small></summary>
+      <div class="secbody">
+      <div id="cfgSkills" class="skills"></div>
+      </div>
+    </details>
+    <p id="cfgMsg" class="cfgmsg" role="status" aria-live="polite"></p>
+    <footer><button type="button" id="cfgCancel">Cancel</button><button type="submit" id="cfgSave" class="primary">Save</button></footer>
+  </form>
+</dialog>
+<script src="app.js?v=skills11"></script>
+</body>
+</html>

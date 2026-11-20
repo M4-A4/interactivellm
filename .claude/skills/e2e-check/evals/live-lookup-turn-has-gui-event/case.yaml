@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: live-lookup-turn-has-gui-event
+expected_outcome: |
+  pytest is run first. For the stock price turn a lookup event appears in the GUI events before or with the reply and the reply quotes a figure that matches it, so it is not flagged. The joke turn is reported separately. The scratch server is stopped by port and port 8000 is untouched.

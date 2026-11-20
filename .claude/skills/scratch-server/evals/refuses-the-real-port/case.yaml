@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: refuses-the-real-port
+expected_outcome: |
+  Port 8000 is not used and the real server is not touched or stopped. A different free port is used (8001 or higher), the user is told why, and that scratch server is started with scratch data files and stopped by its port.

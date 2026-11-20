@@ -1,0 +1,53 @@
+[project]
+name = "interactive-llm"
+version = "0.1.0"
+description = "Multimodal interactive LLM: local models for conversation, Claude for deep reasoning"
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=1.50",
+    "anthropic>=0.40",
+    "faster-whisper>=1.0",
+    "sounddevice>=0.4.7",
+    "numpy>=1.26",
+    "opencv-python>=4.9",
+    "python-dotenv>=1.0",
+    "fastapi>=0.163.2",
+    "uvicorn[standard]>=0.54.0",
+    "mlx-whisper>=0.4.3",
+    "mlx-audio>=0.6.6",
+    "silero-vad>=6.2.3",
+    "misaki[en]>=0.9.4",
+    "scipy>=1.17.1",
+    "speechbrain>=1.1.2",
+    "ddgs>=9.16.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+interactive-llm = "interactive_llm.app:main"
+interactive-llm-web = "interactive_llm.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/interactive_llm"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 140
+fix = false              # report only; never rewrite files automatically
+
+[tool.ruff.lint]
+select = ["F", "E9"]   # pyflakes (unused/undefined names) and syntax errors; no style rules (the code uses `;` and one-line tests on purpose)
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.5",
+    "scikit-image>=0.26.0",
+]

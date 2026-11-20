@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+build/
+dist/
+wheels/
+*.egg-info/
+*.egg
+.eggs/
+
+# Virtual environment and secrets
+.venv/
+venv/
+.env
+.envrc
+
+# Test, coverage and lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+.hypothesis/
+.cache/
+
+# Logs and scratch files
+*.log
+*.pid
+
+# macOS and editors
+.DS_Store
+.idea/
+.vscode/
+
+# Interactive_LLM: owner's real biometric and settings data, never commit
+data/
+
+# Claude Code: personal config
+CLAUDE.local.md
+.claude/settings.local.json
